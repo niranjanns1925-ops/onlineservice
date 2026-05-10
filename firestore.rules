@@ -1,0 +1,47 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 0. Global Safety Net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // 3. Global Helpers
+    function isSignedIn() { return request.auth != null; }
+    function isOwner(userId) { return isSignedIn() && request.auth.uid == userId; }
+    function isAdmin() { 
+      return isSignedIn() && 
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin'; 
+    }
+    function isValidId(id) { return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\\\-]+$'); }
+    function incoming() { return request.resource.data; }
+    function existing() { return resource.data; }
+
+    // --- Users Collection ---
+    match /users/{userId} {
+      allow read: if isSignedIn();
+      allow create: if isOwner(userId) && 
+                      incoming().role == 'user' && 
+                      incoming().keys().hasAll(['name', 'email', 'role', 'createdAt']);
+      allow update: if isOwner(userId) && 
+                      incoming().role == existing().role &&
+                      incoming().diff(existing()).affectedKeys().hasOnly(['name']);
+    }
+
+    // --- Services Collection ---
+    match /services/{serviceId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // --- Applications Collection ---
+    match /applications/{applicationId} {
+      allow read: if isAdmin() || (isSignedIn() && existing().userId == request.auth.uid);
+      allow create: if isSignedIn() && 
+                      incoming().userId == request.auth.uid &&
+                      incoming().status == 'pending';
+      allow update: if isAdmin() && 
+                      incoming().diff(existing()).affectedKeys().hasAny(['status', 'rejectionReason', 'updatedAt']);
+    }
+  }
+}

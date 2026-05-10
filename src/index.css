@@ -1,0 +1,132 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@import "@fontsource-variable/geist";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+    --font-heading: var(--font-sans);
+    --font-sans: 'Geist Variable', sans-serif;
+    --color-sidebar-ring: var(--sidebar-ring);
+    --color-sidebar-border: var(--sidebar-border);
+    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+    --color-sidebar-accent: var(--sidebar-accent);
+    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+    --color-sidebar-primary: var(--sidebar-primary);
+    --color-sidebar-foreground: var(--sidebar-foreground);
+    --color-sidebar: var(--sidebar);
+    --color-chart-5: var(--chart-5);
+    --color-chart-4: var(--chart-4);
+    --color-chart-3: var(--chart-3);
+    --color-chart-2: var(--chart-2);
+    --color-chart-1: var(--chart-1);
+    --color-ring: var(--ring);
+    --color-input: var(--input);
+    --color-border: var(--border);
+    --color-destructive: var(--destructive);
+    --color-accent-foreground: var(--accent-foreground);
+    --color-accent: var(--accent);
+    --color-muted-foreground: var(--muted-foreground);
+    --color-muted: var(--muted);
+    --color-secondary-foreground: var(--secondary-foreground);
+    --color-secondary: var(--secondary);
+    --color-primary-foreground: var(--primary-foreground);
+    --color-primary: var(--primary);
+    --color-popover-foreground: var(--popover-foreground);
+    --color-popover: var(--popover);
+    --color-card-foreground: var(--card-foreground);
+    --color-card: var(--card);
+    --color-foreground: var(--foreground);
+    --color-background: var(--background);
+    --radius-sm: calc(var(--radius) * 0.6);
+    --radius-md: calc(var(--radius) * 0.8);
+    --radius-lg: var(--radius);
+    --radius-xl: calc(var(--radius) * 1.4);
+    --radius-2xl: calc(var(--radius) * 1.8);
+    --radius-3xl: calc(var(--radius) * 2.2);
+    --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+:root {
+    --background: #f0f9f4;
+    --foreground: #1a2e21;
+    --card: #ffffff;
+    --card-foreground: #1a2e21;
+    --popover: #ffffff;
+    --popover-foreground: #1a2e21;
+    --primary: #2d6a4f;
+    --primary-foreground: #ffffff;
+    --secondary: #d8eadd;
+    --secondary-foreground: #2d6a4f;
+    --muted: #f0f9f4;
+    --muted-foreground: #52796f;
+    --accent: #e8f5ed;
+    --accent-foreground: #2d6a4f;
+    --destructive: oklch(0.577 0.245 27.325);
+    --border: rgba(45, 106, 79, 0.08);
+    --input: rgba(45, 106, 79, 0.15);
+    --ring: #2d6a4f;
+    --radius: 12px;
+    --sidebar: #f9fcfb;
+    --sidebar-foreground: #1a2e21;
+    --sidebar-primary: #2d6a4f;
+    --sidebar-primary-foreground: #ffffff;
+    --sidebar-accent: #e8f5ed;
+    --sidebar-accent-foreground: #2d6a4f;
+    --sidebar-border: rgba(45, 106, 79, 0.08);
+    --sidebar-ring: #2d6a4f;
+}
+
+.dark {
+    --background: #1a2e21;
+    --foreground: #f0f9f4;
+    --card: #223f2f;
+    --card-foreground: #ffffff;
+    --popover: #223f2f;
+    --popover-foreground: #ffffff;
+    --primary: #40916c;
+    --primary-foreground: #ffffff;
+    --secondary: #2d6a4f;
+    --secondary-foreground: #d8eadd;
+    --muted: #2d6a4f;
+    --muted-foreground: #95d5b2;
+    --accent: #2d6a4f;
+    --accent-foreground: #ffffff;
+    --destructive: oklch(0.704 0.191 22.216);
+    --border: rgba(255, 255, 255, 0.1);
+    --input: rgba(255, 255, 255, 0.15);
+    --ring: #95d5b2;
+    --sidebar: #223f2f;
+    --sidebar-foreground: #f0f9f4;
+    --sidebar-primary: #40916c;
+    --sidebar-primary-foreground: #ffffff;
+    --sidebar-accent: #2d6a4f;
+    --sidebar-accent-foreground: #ffffff;
+    --sidebar-border: rgba(255, 255, 255, 0.1);
+    --sidebar-ring: #95d5b2;
+}
+
+@layer utilities {
+    .card-container {
+        @apply bg-white rounded-[24px] shadow-[0_4px_20px_rgba(45,106,79,0.05)] border border-[rgba(45,106,79,0.08)];
+    }
+    .perspective-1000 {
+        perspective: 1000px;
+    }
+    .animate-spin-slow {
+        animation: spin 8s linear infinite;
+    }
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+    }
+  body {
+    @apply bg-background text-foreground;
+    }
+  html {
+    @apply font-sans;
+    }
+}

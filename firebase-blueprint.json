@@ -1,0 +1,60 @@
+{
+  "entities": {
+    "User": {
+      "title": "User Profile",
+      "description": "User account information and roles",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "email": { "type": "string" },
+        "role": { "type": "string", "enum": ["user", "admin"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "email", "role"]
+    },
+    "Service": {
+      "title": "Service",
+      "description": "A government service offered by the Maiyam",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "procedure": { "type": "string" },
+        "fee": { "type": "number" },
+        "requiredDocuments": { "type": "array", "items": { "type": "string" } }
+      },
+      "required": ["name", "description", "procedure", "fee", "requiredDocuments"]
+    },
+    "Application": {
+      "title": "Application",
+      "description": "A user's application for a specific service",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "userName": { "type": "string" },
+        "serviceId": { "type": "string" },
+        "serviceName": { "type": "string" },
+        "status": { "type": "string", "enum": ["pending", "accepted", "rejected"] },
+        "rejectionReason": { "type": "string" },
+        "uploadedDocuments": { "type": "object" },
+        "appliedAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "serviceId", "status", "appliedAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User profiles"
+    },
+    "/services/{serviceId}": {
+      "schema": "Service",
+      "description": "Available services"
+    },
+    "/applications/{applicationId}": {
+      "schema": "Application",
+      "description": "Service applications"
+    }
+  }
+}
