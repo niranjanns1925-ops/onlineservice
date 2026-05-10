@@ -1,10 +1,11 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { collection, getDocs } from 'firebase/firestore';
-import { db } from '../../lib/firebase';
+import { db, handleFirestoreError, OperationType } from '../../lib/firebase';
 import { Service } from '../../types';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '../../components/ui/card';
+import { Badge } from '../../components/ui/badge';
 import { FileText, IndianRupee, ArrowRight, Search, Filter } from 'lucide-react';
 import { motion } from 'motion/react';
 import { Input } from '../../components/ui/input';
@@ -15,6 +16,7 @@ export default function UserServices() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [feeRange, setFeeRange] = useState('all');
+  const [category, setCategory] = useState('all');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -27,7 +29,7 @@ export default function UserServices() {
         })) as Service[];
         setServices(servicesList);
       } catch (error) {
-        console.error("Error fetching services: ", error);
+        handleFirestoreError(error, OperationType.LIST, 'services');
       } finally {
         setLoading(false);
       }
@@ -46,9 +48,16 @@ export default function UserServices() {
       else if (feeRange === 'medium') matchesFee = s.fee > 100 && s.fee <= 500;
       else if (feeRange === 'high') matchesFee = s.fee > 500;
 
-      return matchesSearch && matchesFee;
+      const matchesCategory = category === 'all' || s.category === category;
+
+      return matchesSearch && matchesFee && matchesCategory;
     });
-  }, [services, searchQuery, feeRange]);
+  }, [services, searchQuery, feeRange, category]);
+
+  const categories = useMemo(() => {
+    const cats = new Set(services.map(s => s.category).filter(Boolean));
+    return Array.from(cats);
+  }, [services]);
 
   return (
     <div className="space-y-8">
@@ -58,17 +67,30 @@ export default function UserServices() {
           <p className="text-muted-foreground pl-3 font-medium">Browse and apply for certificates and government services.</p>
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-4 w-full md:max-w-2xl">
+        <div className="flex flex-col sm:flex-row gap-4 w-full md:max-w-3xl">
           <div className="relative flex-1 group">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
             <Input 
-              placeholder="Search services (e.g. Income Tax, Birth Certificate)..." 
+              placeholder="Search services..." 
               className="pl-11 rounded-xl h-12 bg-white/50 border-primary/10 focus-visible:ring-primary shadow-sm"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
-          <div className="w-full sm:w-[200px]">
+          <div className="w-full sm:w-[180px]">
+             <Select value={category} onValueChange={setCategory}>
+                <SelectTrigger className="rounded-xl h-12 bg-white/50 border-primary/10 focus:ring-primary shadow-sm">
+                  <SelectValue placeholder="Category" />
+                </SelectTrigger>
+                <SelectContent className="rounded-xl border-primary/10">
+                  <SelectItem value="all">All Categories</SelectItem>
+                  {categories.map(cat => (
+                    <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                  ))}
+                </SelectContent>
+             </Select>
+          </div>
+          <div className="w-full sm:w-[150px]">
              <Select value={feeRange} onValueChange={setFeeRange}>
                 <SelectTrigger className="rounded-xl h-12 bg-white/50 border-primary/10 focus:ring-primary shadow-sm">
                   <SelectValue placeholder="Filter by Fee" />
@@ -92,10 +114,20 @@ export default function UserServices() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: idx * 0.05 }}
+            whileHover={{ y: -5 }}
+            className="flex h-full"
           >
-            <Card className="card-container h-full flex flex-col border-none p-0 overflow-hidden">
-              <CardHeader className="bg-accent/40 pb-4 border-b border-primary/5">
-                <CardTitle className="text-xl text-primary font-bold line-clamp-1">{s.name}</CardTitle>
+            <Card className="card-container flex flex-col w-full border-none hover:shadow-xl transition-all duration-300 group overflow-hidden">
+              <CardHeader className="pb-4 relative bg-accent/40 border-b border-primary/5">
+                <div className="flex justify-between items-start mb-2">
+                  <div className="p-2.5 bg-primary/10 rounded-xl text-primary group-hover:bg-primary group-hover:text-white transition-colors">
+                    <FileText className="w-5 h-5" />
+                  </div>
+                  <Badge variant="outline" className="text-[9px] font-black uppercase tracking-[0.2em] border-primary/20 text-primary bg-white/50">
+                    {s.category || 'General'}
+                  </Badge>
+                </div>
+                <CardTitle className="text-xl font-bold tracking-tight line-clamp-1 text-primary">{s.name}</CardTitle>
                 <CardDescription className="line-clamp-2 h-10 font-medium text-muted-foreground">{s.description}</CardDescription>
               </CardHeader>
               <CardContent className="pt-6 flex-1 space-y-4">

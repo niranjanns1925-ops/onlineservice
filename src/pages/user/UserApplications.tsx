@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { collection, query, where, getDocs, orderBy } from 'firebase/firestore';
-import { db } from '../../lib/firebase';
+import { db, handleFirestoreError, OperationType } from '../../lib/firebase';
 import { useAuth } from '../../lib/auth';
 import { Application } from '../../types';
 import { Button } from '../../components/ui/button';
@@ -31,7 +31,7 @@ export default function UserApplications() {
           })) as Application[];
           setApps(appsList);
         } catch (error) {
-          console.error("Error fetching applications: ", error);
+          handleFirestoreError(error, OperationType.LIST, 'applications');
         } finally {
           setLoading(false);
         }

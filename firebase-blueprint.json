@@ -41,6 +41,22 @@
         "updatedAt": { "type": "string", "format": "date-time" }
       },
       "required": ["userId", "serviceId", "status", "appliedAt"]
+    },
+    "AuditLog": {
+      "title": "Audit Log",
+      "description": "Log of administrative actions for security and tracking",
+      "type": "object",
+      "properties": {
+        "action": { "type": "string" },
+        "actingAdminId": { "type": "string" },
+        "actingAdminName": { "type": "string" },
+        "targetUserId": { "type": "string" },
+        "targetUserName": { "type": "string" },
+        "oldRole": { "type": "string" },
+        "newRole": { "type": "string" },
+        "timestamp": { "type": "object" }
+      },
+      "required": ["action", "actingAdminId", "timestamp"]
     }
   },
   "firestore": {
@@ -55,6 +71,10 @@
     "/applications/{applicationId}": {
       "schema": "Application",
       "description": "Service applications"
+    },
+    "/audit_logs/{logId}": {
+      "schema": "AuditLog",
+      "description": "Security audit logs for administrative actions"
     }
   }
 }

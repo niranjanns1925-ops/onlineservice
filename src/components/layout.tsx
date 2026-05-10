@@ -33,6 +33,7 @@ export default function Layout() {
                       <Link to="/admin/services"><Button variant="ghost" className="text-sm font-bold bg-white text-primary shadow-sm hover:bg-white/90 rounded-lg px-4 h-8"><Database className="h-4 w-4 mr-2" />Services</Button></Link>
                       <Link to="/admin/applications"><Button variant="ghost" className="text-sm font-semibold text-primary hover:bg-white/50 rounded-lg px-4 h-8"><FileText className="h-4 w-4 mr-2" />Queue</Button></Link>
                       <Link to="/admin/reports"><Button variant="ghost" className="text-sm font-semibold text-primary hover:bg-white/50 rounded-lg px-4 h-8"><Monitor className="h-4 w-4 mr-2" />Reports</Button></Link>
+                      <Link to="/admin/users"><Button variant="ghost" className="text-sm font-semibold text-primary hover:bg-white/50 rounded-lg px-4 h-8"><User className="h-4 w-4 mr-2" />Users</Button></Link>
                     </>
                   ) : (
                     <>

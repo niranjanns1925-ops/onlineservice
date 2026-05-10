@@ -21,11 +21,12 @@ service cloud.firestore {
     match /users/{userId} {
       allow read: if isSignedIn();
       allow create: if isOwner(userId) && 
-                      incoming().role == 'user' && 
-                      incoming().keys().hasAll(['name', 'email', 'role', 'createdAt']);
-      allow update: if isOwner(userId) && 
+                      (incoming().role == 'user' || (incoming().role == 'admin' && request.auth.token.email == 'niranjanns1925@gmail.com')) && 
+                      incoming().keys().hasAll(['name', 'email', 'role']);
+      allow update: if (isOwner(userId) && 
                       incoming().role == existing().role &&
-                      incoming().diff(existing()).affectedKeys().hasOnly(['name']);
+                      incoming().diff(existing()).affectedKeys().hasOnly(['name'])) ||
+                      (isAdmin() && incoming().diff(existing()).affectedKeys().hasOnly(['role']));
     }
 
     // --- Services Collection ---
@@ -42,6 +43,26 @@ service cloud.firestore {
                       incoming().status == 'pending';
       allow update: if isAdmin() && 
                       incoming().diff(existing()).affectedKeys().hasAny(['status', 'rejectionReason', 'updatedAt']);
+    }
+
+    // --- Admin Notifications ---
+    match /admin_notifications/{notifId} {
+      allow read: if isAdmin();
+      allow create: if isSignedIn();
+      allow update: if isAdmin() && incoming().diff(existing()).affectedKeys().hasOnly(['read']);
+    }
+
+    // --- Test Connection ---
+    match /testIdx/connection {
+      allow read: if true;
+    }
+
+    // --- Audit Logs ---
+    match /audit_logs/{logId} {
+      allow read: if isAdmin();
+      allow create: if isAdmin() && 
+                      incoming().keys().hasAll(['action', 'actingAdminId', 'timestamp']) &&
+                      incoming().actingAdminId == request.auth.uid;
     }
   }
 }

@@ -4,6 +4,7 @@ export interface Service {
   description: string;
   procedure: string;
   fee: number;
+  category: string;
   requiredDocuments: string[];
 }
 

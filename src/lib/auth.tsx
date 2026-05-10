@@ -7,13 +7,15 @@ import {
   User as FirebaseUser 
 } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
-import { auth, db, isFirebaseConfigured } from './firebase';
+import { auth, db, isFirebaseConfigured, handleFirestoreError, OperationType } from './firebase';
+import { toast } from 'sonner';
 
 export interface User {
   id: string;
   name: string;
   email: string;
   role: 'user' | 'admin';
+  createdAt?: string;
 }
 
 interface AuthContextType {
@@ -41,17 +43,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           if (userDoc.exists()) {
             setUser(userDoc.data() as User);
           } else {
-            const newUser: User = {
+            const newUser = {
               id: fbUser.uid,
               name: fbUser.displayName || fbUser.email?.split('@')[0] || 'Unknown User',
               email: fbUser.email || '',
-              role: fbUser.email === 'niranjanns1925@gmail.com' ? 'admin' : 'user' // Initial admin bootstrap
+              role: fbUser.email === 'niranjanns1925@gmail.com' ? 'admin' : 'user', // Initial admin bootstrap
+              createdAt: new Date().toISOString()
             };
             await setDoc(doc(db, 'users', fbUser.uid), newUser);
-            setUser(newUser);
+            setUser(newUser as User);
           }
         } catch (e) {
           console.error("Firebase auth error", e);
+          if (e instanceof Error && e.message.includes('insufficient permissions')) {
+            handleFirestoreError(e, OperationType.GET, `users/${fbUser.uid}`);
+          }
           setUser(null);
         }
       } else {
@@ -64,12 +70,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const loginWithGoogle = async () => {
-    if (!isFirebaseConfigured) return;
+    if (!isFirebaseConfigured) {
+      toast.error("Firebase is not configured correctly.");
+      return;
+    }
     try {
       const provider = new GoogleAuthProvider();
       await signInWithPopup(auth, provider);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Google Sign-In failed", error);
+      if (error?.code === 'auth/unauthorized-domain') {
+        const domain = window.location.hostname;
+        toast.error(`Domain "${domain}" is not authorized in Firebase. Please add it to the authorized domains in the Firebase Console.`);
+      } else {
+        toast.error("Authentication failed. Please try again.");
+      }
     }
   };
 

@@ -22,6 +22,7 @@ export default function AdminServices() {
   const [description, setDescription] = useState('');
   const [procedure, setProcedure] = useState('');
   const [fee, setFee] = useState('');
+  const [category, setCategory] = useState('');
   const [reqDocs, setReqDocs] = useState('');
 
   const fetchServices = async () => {
@@ -48,6 +49,7 @@ export default function AdminServices() {
       setDescription(service.description);
       setProcedure(service.procedure);
       setFee(service.fee.toString());
+      setCategory(service.category || '');
       setReqDocs(service.requiredDocuments.join(', '));
     } else {
       setEditingService(null);
@@ -55,6 +57,7 @@ export default function AdminServices() {
       setDescription('');
       setProcedure('');
       setFee('');
+      setCategory('');
       setReqDocs('');
     }
     setIsDialogOpen(true);
@@ -67,6 +70,7 @@ export default function AdminServices() {
       description,
       procedure,
       fee: Number(fee),
+      category,
       requiredDocuments: reqDocs.split(',').map(d => d.trim()).filter(Boolean),
     };
     
@@ -134,6 +138,10 @@ export default function AdminServices() {
                 <Input required type="number" min="0" value={fee} onChange={e => setFee(e.target.value)} className="rounded-xl border-primary/20 focus-visible:ring-primary bg-background" />
               </div>
               <div className="space-y-2">
+                <Label className="font-bold text-xs uppercase tracking-wider text-muted-foreground">Category</Label>
+                <Input required value={category} onChange={e => setCategory(e.target.value)} placeholder="e.g. Certificates, Taxation, Licensing" className="rounded-xl border-primary/20 focus-visible:ring-primary bg-background" />
+              </div>
+              <div className="space-y-2">
                 <Label className="font-bold text-xs uppercase tracking-wider text-muted-foreground">Required Documents (comma separated)</Label>
                 <Input required value={reqDocs} onChange={e => setReqDocs(e.target.value)} placeholder="Aadhaar, Ration Card, Passport Photo" className="rounded-xl border-primary/20 focus-visible:ring-primary bg-background" />
               </div>
@@ -150,6 +158,7 @@ export default function AdminServices() {
           <TableHeader className="bg-accent/50 border-b border-primary/10">
             <TableRow>
               <TableHead className="font-bold text-xs uppercase text-muted-foreground tracking-wider py-4">Service Name</TableHead>
+              <TableHead className="font-bold text-xs uppercase text-muted-foreground tracking-wider py-4">Category</TableHead>
               <TableHead className="font-bold text-xs uppercase text-muted-foreground tracking-wider py-4">Fee</TableHead>
               <TableHead className="font-bold text-xs uppercase text-muted-foreground tracking-wider py-4">Documents</TableHead>
               <TableHead className="font-bold text-xs uppercase text-muted-foreground tracking-wider text-right py-4">Actions</TableHead>
@@ -159,6 +168,7 @@ export default function AdminServices() {
             {services.map(s => (
               <TableRow key={s.id} className="border-b border-primary/5 hover:bg-accent/20">
                 <TableCell className="font-bold text-sm text-foreground py-4">{s.name}</TableCell>
+                <TableCell className="font-medium text-[10px] uppercase tracking-widest text-primary py-4">{s.category}</TableCell>
                 <TableCell className="font-medium text-sm text-muted-foreground py-4">₹{s.fee}</TableCell>
                 <TableCell className="py-4">
                   <div className="flex flex-wrap gap-1.5">

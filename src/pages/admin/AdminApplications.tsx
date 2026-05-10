@@ -54,6 +54,18 @@ export default function AdminApplications() {
           results[name] = await decryptDocument(encrypted, secret);
         }
       }
+      
+      // Decrypt additional docs if any
+      if (app.additionalDocuments) {
+        for (const [name, encrypted] of Object.entries(app.additionalDocuments)) {
+          if (encrypted.startsWith('data:')) {
+            results[name] = encrypted;
+          } else {
+            results[name] = await decryptDocument(encrypted, secret);
+          }
+        }
+      }
+      
       setDecryptedDocs(results);
     } catch (e) {
       console.error(e);
@@ -208,6 +220,14 @@ export default function AdminApplications() {
                       </Card>
                     );
                   })}
+                  {/* Highlight Additional Documents */}
+                  {selectedApp.additionalDocuments && Object.keys(selectedApp.additionalDocuments).length > 0 && (
+                    <div className="col-span-full mt-4">
+                       <h4 className="text-[10px] font-black uppercase tracking-widest text-amber-600 mb-2 flex items-center gap-2">
+                         <AlertCircle className="w-3 h-3" /> User Provided Additional Documents
+                       </h4>
+                    </div>
+                  )}
                   {!isDecrypting && Object.keys(decryptedDocs).length === 0 && (
                     <div className="col-span-full py-8 text-center bg-red-50 rounded-2xl border border-red-100 text-red-800 text-xs font-bold">
                        CRITICAL: Data decryption failed. Key mismatch.
