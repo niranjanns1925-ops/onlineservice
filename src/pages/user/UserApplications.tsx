@@ -118,18 +118,37 @@ export default function UserApplications() {
                         <Badge className={`px-4 py-1 text-[10px] font-black uppercase tracking-[0.1em] border-none shadow-sm rounded-full ${getStatusColor(app.status)}`}>
                           {app.status.replace('_', ' ')}
                         </Badge>
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground px-1">
-                          Est. Completion: <span className="text-primary">{app.estimatedCompletionAt ? new Date(app.estimatedCompletionAt).toLocaleDateString() : getEstimatedDays(app.status)}</span>
-                        </span>
                       </div>
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="space-y-4">
                        <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-muted-foreground">
                           <span>Overall Progress</span>
                           <span className="text-primary">{getProgressValue(app.status)}%</span>
                        </div>
                        <Progress value={getProgressValue(app.status)} className="h-2 rounded-full" />
+                       
+                       <div className="flex justify-between items-start pt-2 gap-2">
+                          {[
+                            { label: 'Submitted', active: true },
+                            { label: 'Verification', active: ['processing', 'info_requested', 'accepted', 'rejected'].includes(app.status) },
+                            { label: 'Decision', active: ['accepted', 'rejected'].includes(app.status) }
+                          ].map((step, sIdx) => (
+                            <div key={sIdx} className="flex flex-col items-center gap-1.5 flex-1">
+                               <div className={`h-1 w-full rounded-full ${step.active ? 'bg-primary' : 'bg-muted/30'}`} />
+                               <span className={`text-[8px] font-black uppercase tracking-tighter text-center ${step.active ? 'text-foreground' : 'text-muted-foreground/50'}`}>
+                                 {step.label}
+                               </span>
+                            </div>
+                          ))}
+                       </div>
+                    </div>
+                    
+                    <div className="flex items-center gap-2 pt-1">
+                      <Clock className="w-3 h-3 text-muted-foreground" />
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                        Time Remaining: <span className="text-primary">{app.estimatedCompletionAt ? new Date(app.estimatedCompletionAt).toLocaleDateString() : getEstimatedDays(app.status)}</span>
+                      </span>
                     </div>
                     
                     {app.status === 'rejected' && app.rejectionReason && (

@@ -135,32 +135,36 @@ export default function ApplicationDetail() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-6">
-          {app.status === 'info_requested' && (
+          {['pending', 'processing', 'info_requested'].includes(app.status) && (
             <motion.div 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-amber-50 border border-amber-200 rounded-[24px] p-8 space-y-4 shadow-sm"
+              className={`${app.status === 'info_requested' ? 'bg-amber-50 border-amber-200' : 'bg-primary/5 border-primary/10'} border rounded-[24px] p-8 space-y-4 shadow-sm`}
             >
-              <div className="flex items-center gap-3 text-amber-900 mb-2">
-                <AlertCircle className="w-6 h-6" />
-                <h2 className="text-xl font-extrabold tracking-tight">Action Required</h2>
+              <div className={`flex items-center gap-3 ${app.status === 'info_requested' ? 'text-amber-900' : 'text-primary'} mb-2`}>
+                {app.status === 'info_requested' ? <AlertCircle className="w-6 h-6" /> : <FileUp className="w-6 h-6" />}
+                <h2 className="text-xl font-extrabold tracking-tight">
+                  {app.status === 'info_requested' ? 'Action Required' : 'Add More Documents'}
+                </h2>
               </div>
               <div className="space-y-4">
-                  <div className="p-4 bg-white/50 rounded-xl border border-amber-100 italic font-medium text-amber-800 leading-relaxed">
-                    "{app.infoRequestedDetails || "The administrator has requested additional documentation for verification."}"
+                  <div className={`p-4 ${app.status === 'info_requested' ? 'bg-white/50 border-amber-100 text-amber-800' : 'bg-white/80 border-primary/5 text-muted-foreground'} rounded-xl border italic font-medium leading-relaxed`}>
+                     {app.status === 'info_requested' 
+                       ? `"${app.infoRequestedDetails || "The administrator has requested additional documentation for verification."}"`
+                       : "If you forgot to upload a document or want to provide additional proof, you can add them here."}
                   </div>
                   
                   <div className="space-y-6 pt-4">
                      <div className="space-y-4">
-                        <Label className="text-sm font-black uppercase tracking-widest text-muted-foreground">Upload Required Files</Label>
+                        <Label className="text-sm font-black uppercase tracking-widest text-muted-foreground">Upload Files</Label>
                         <div className="grid gap-4">
                            <div className="space-y-2">
                               <Input 
                                 type="file" 
-                                className="h-12 rounded-xl bg-white focus-visible:ring-amber-500 border-amber-200"
-                                onChange={(e) => handleFileChange(e, 'additional_doc_' + Date.now())}
+                                className={`h-12 rounded-xl bg-white focus-visible:ring-primary border-muted-foreground/20`}
+                                onChange={(e) => handleFileChange(e, 'user_addition_' + Date.now())}
                               />
-                              <p className="text-[10px] font-bold text-amber-700 uppercase tracking-widest">Supports PDF, JPG, PNG (Max 5MB)</p>
+                              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Supports PDF, JPG, PNG (Max 5MB)</p>
                            </div>
                         </div>
                      </div>
@@ -168,10 +172,10 @@ export default function ApplicationDetail() {
                      <Button 
                        onClick={handleSubmitAdditional}
                        disabled={submitting || Object.keys(files).length === 0}
-                       className="w-full bg-amber-600 hover:bg-amber-700 text-white rounded-2xl h-14 font-black uppercase tracking-widest flex gap-2 shadow-lg shadow-amber-600/20"
+                       className={`w-full ${app.status === 'info_requested' ? 'bg-amber-600 hover:bg-amber-700 shadow-amber-600/20' : 'bg-primary hover:bg-primary/90 shadow-primary/20'} text-white rounded-2xl h-14 font-black uppercase tracking-widest flex gap-2 shadow-lg`}
                      >
                        {submitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <FileUp className="w-5 h-5" />}
-                       Submit Final Documents
+                       Submit Additional Documents
                      </Button>
                   </div>
               </div>
